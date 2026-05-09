@@ -1,0 +1,676 @@
+
+<h2 class="sr-only">Quiz de fome zero e agrigultura sustentavel</h2>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  #game-root {
+    font-family: 'Nunito', sans-serif;
+    background: transparent;
+    min-height: 520px;
+    padding: 1.5rem 1rem;
+  }
+
+  .game-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .game-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+  }
+
+  .ods-badge {
+    display: inline-block;
+    background: #D4A017;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .score-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 10px 16px;
+    margin-bottom: 1.2rem;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+
+  .score-bar span { color: var(--color-text-primary); }
+
+  .phase-label {
+    font-size: 12px;
+    background: #3B6D11;
+    color: #fff;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-weight: 700;
+  }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* START */
+  .start-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .start-icon {
+    font-size: 52px;
+    margin-bottom: 12px;
+  }
+
+  .start-card h3 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    color: var(--color-text-primary);
+    margin-bottom: 8px;
+  }
+
+  .start-card p {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-primary {
+    background: #3B6D11;
+    color: #fff;
+    border: none;
+    border-radius: var(--border-radius-md);
+    padding: 12px 32px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 17px;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.15s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary:hover { background: #27500A; transform: scale(1.03); }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 10px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-left: 10px;
+  }
+
+  .btn-secondary:hover { background: var(--color-background-secondary); }
+
+  /* QUIZ */
+  .question-box {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .question-category {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .question-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    line-height: 1.5;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .option-btn {
+    background: var(--color-background-secondary);
+    border: 1.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 14px 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    text-align: left;
+    line-height: 1.4;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: #3B6D11;
+    background: #EAF3DE;
+    transform: translateY(-1px);
+  }
+
+  .option-btn.correct {
+    border-color: #3B6D11;
+    background: #EAF3DE;
+    color: #3B6D11;
+  }
+
+  .option-btn.wrong {
+    border-color: #A32D2D;
+    background: #FCEBEB;
+    color: #A32D2D;
+  }
+
+  .option-btn:disabled { cursor: default; }
+
+  .feedback-box {
+    padding: 12px 16px;
+    border-radius: var(--border-radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  .feedback-box.show { display: block; }
+
+  .feedback-box.correct-fb {
+    background: #EAF3DE;
+    color: #27500A;
+    border: 0.5px solid #97C459;
+  }
+
+  .feedback-box.wrong-fb {
+    background: #FCEBEB;
+    color: #791F1F;
+    border: 0.5px solid #F09595;
+  }
+
+  .next-btn-wrap { text-align: center; margin-top: 4px; }
+
+  /* PROGRESS */
+  .progress-wrap {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.2rem;
+    align-items: center;
+  }
+
+  .progress-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-border-tertiary);
+    transition: background 0.3s;
+  }
+
+  .progress-dot.done { background: #3B6D11; }
+  .progress-dot.current { background: #D4A017; }
+  .progress-dot.wrong-dot { background: #A32D2D; }
+
+  /* RESULT */
+  .result-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .result-icon { font-size: 52px; margin-bottom: 12px; }
+
+  .result-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: var(--color-text-primary);
+    margin-bottom: 6px;
+  }
+
+  .result-score {
+    font-size: 40px;
+    font-family: 'Fredoka One', cursive;
+    color: #3B6D11;
+    margin: 12px 0 4px;
+  }
+
+  .result-desc {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+  }
+
+  .result-tip {
+    background: #EAF3DE;
+    border: 0.5px solid #97C459;
+    border-radius: var(--border-radius-md);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #27500A;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .btn-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+
+  /* MINI-GAME */
+  .match-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .match-col h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .match-item {
+    background: var(--color-background-secondary);
+    border: 1.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 6px;
+    transition: border-color 0.15s, background 0.15s;
+    color: var(--color-text-primary);
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .match-item:hover:not(.matched):not(.used) { border-color: #3B6D11; background: #EAF3DE; }
+  .match-item.selected { border-color: #D4A017; background: #FAEEDA; color: #633806; }
+  .match-item.matched { border-color: #3B6D11; background: #EAF3DE; color: #27500A; cursor: default; }
+  .match-item.wrong-match { border-color: #A32D2D; background: #FCEBEB; color: #791F1F; }
+
+  .match-score-text {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 8px 0;
+  }
+</style>
+
+<div id="game-root">
+  <div class="game-header">
+    <div class="game-title">🌱 Fome Zero em Ação</div>
+    <div class="ods-badge">ODS 2 — Fome Zero e Agricultura Sustentável</div>
+  </div>
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="start-card">
+      <div class="start-icon">🌾</div>
+      <h3>Bem-vindo ao quiz da fome zero e agricultura sustentavel!</h3>
+      <p>Teste seus conhecimentos sobre segurança alimentar, agricultura sustentável e o combate à fome no mundo. São 3 fases com quiz e atividade de associação.</p>
+      <div>
+        <button class="btn-primary" onclick="startGame()">Começar jogo ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="progress-wrap" id="progress-dots"></div>
+    <div class="score-bar">
+      <div>Pontuação: <span id="score-display">0</span></div>
+      <div id="phase-badge" class="phase-label">Fase 1</div>
+      <div>Pergunta <span id="q-num">1</span>/5</div>
+    </div>
+    <div class="question-box">
+      <div class="question-category" id="q-cat"></div>
+      <div class="question-text" id="q-text"></div>
+    </div>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="feedback-box" id="feedback-box"></div>
+    <div class="next-btn-wrap">
+      <button class="btn-primary" id="next-btn" style="display:none" onclick="nextQuestion()">Próxima →</button>
+    </div>
+  </div>
+
+  <!-- MATCH SCREEN -->
+  <div class="screen" id="screen-match">
+    <div class="score-bar">
+      <div>Pontuação: <span id="match-score-display">0</span></div>
+      <div class="phase-label">Fase Bônus</div>
+      <div>Associação</div>
+    </div>
+    <div class="question-box">
+      <div class="question-category">🔗 Atividade de associação</div>
+      <div class="question-text">Associe cada prática ao seu benefício para a agricultura sustentável!</div>
+    </div>
+    <div class="match-container">
+      <div>
+        <h4>🌿 Prática</h4>
+        <div id="match-left"></div>
+      </div>
+      <div>
+        <h4>✅ Benefício</h4>
+        <div id="match-right"></div>
+      </div>
+    </div>
+    <div class="match-score-text" id="match-feedback"></div>
+    <div class="next-btn-wrap">
+      <button class="btn-primary" id="match-next-btn" style="display:none" onclick="showResult()">Ver resultado →</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen" id="screen-result">
+    <div class="result-card">
+      <div class="result-icon" id="result-icon">🏆</div>
+      <div class="result-title" id="result-title">Parabéns!	</div>
+      <div class="result-score" id="result-score-val">0 pts</div>
+      <div class="result-desc" id="result-desc"></div>
+      <div class="result-tip" id="result-tip"></div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="restartGame()">Jogar novamente</button>
+        <button class="btn-secondary" onclick="sendPrompt('Quero aprender mais sobre a ODS 2 - Fome Zero e Agricultura Sustentável')">Saiba mais ↗</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    cat: "🌍 Contexto Global",
+    text: "Quantas pessoas sofrem de insegurança alimentar severa no mundo, segundo dados recentes?",
+    options: ["Cerca de 50 milhões", "Cerca de 250 milhões", "Mais de 700 milhões", "Menos de 10 milhões"],
+    correct: 2,
+    feedback: "Mais de 700 milhões de pessoas enfrentam insegurança alimentar severa no mundo. A ODS 2 busca erradicar a fome até 2030 para todos, em toda parte."
+  },
+  {
+    cat: "🌱 Agricultura Sustentável",
+    text: "O que é agroecologia?",
+    options: ["Uso intensivo de agrotóxicos", "Abordagem que integra ecologia e agricultura para sistemas alimentares sustentáveis", "Monocultura com alta produtividade", "Cultivo exclusivo em estufas"],
+    correct: 1,
+    feedback: "A agroecologia integra princípios ecológicos na agricultura, promovendo biodiversidade, saúde do solo e sustentabilidade — um pilar importante da ODS 2."
+  },
+  {
+    cat: "🇧🇷 Brasil e Alimentação",
+    text: "Qual programa brasileiro ficou mundialmente reconhecido no combate à fome e à pobreza?",
+    options: ["Plano de Metas", "Fome Zero / Bolsa Família", "PAC Alimentar", "Programa Soja Brasil"],
+    correct: 1,
+    feedback: "O programa Fome Zero e o Bolsa Família tornaram o Brasil referência global no combate à fome. O país chegou a sair do Mapa da Fome da ONU em 2014."
+  },
+  {
+    cat: "🥦 Nutrição",
+    text: "O que é a 'dupla carga da malnutrição'?",
+    options: ["Excesso de vitaminas e minerais", "Convivência de desnutrição e obesidade numa mesma população", "Alto consumo de proteínas e baixo de carboidratos", "Escassez de dois nutrientes ao mesmo tempo"],
+    correct: 1,
+    feedback: "A dupla carga é quando desnutrição e obesidade coexistem na mesma região ou até família. Isso ocorre quando há acesso a alimentos calóricos, mas sem nutrição adequada."
+  },
+  {
+    cat: "🌾 Sistemas Alimentares",
+    text: "Qual percentual de alimentos produzidos no mundo é desperdiçado anualmente?",
+    options: ["Cerca de 5%", "Cerca de 15%", "Cerca de 30%", "Mais de 60%"],
+    correct: 2,
+    feedback: "Aproximadamente 1/3 dos alimentos produzidos no mundo são desperdiçados. Reduzir esse desperdício é essencial para alcançar a ODS 2 e garantir alimentação para todos."
+  },
+  {
+    cat: "💧 Recursos Naturais",
+    text: "Qual o maior uso da água doce no mundo?",
+    options: ["Uso industrial", "Uso doméstico", "Agricultura e irrigação", "Geração de energia"],
+    correct: 2,
+    feedback: "A agricultura consome cerca de 70% da água doce mundial. Por isso, práticas de irrigação eficiente são fundamentais para a agricultura sustentável prevista na ODS 2."
+  }
+];
+
+const matchPairs = [
+  { practice: "Rotação de culturas", benefit: "Restaura nutrientes do solo" },
+  { practice: "Agricultura familiar", benefit: "Garante diversidade alimentar local" },
+  { practice: "Compostagem", benefit: "Transforma resíduos em adubo natural" },
+  { practice: "Agrofloresta", benefit: "Combina árvores com cultivos e cria biodiversidade" }
+];
+
+let currentQ = 0;
+let score = 0;
+let results = [];
+let selectedMatchLeft = null;
+let matchScores = 0;
+let matchDone = 0;
+let matchAttempts = {};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame() {
+  currentQ = 0; score = 0; results = [];
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function renderDots() {
+  const container = document.getElementById('progress-dots');
+  container.innerHTML = '';
+  for (let i = 0; i < questions.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'progress-dot';
+    if (i < currentQ) {
+      d.classList.add(results[i] ? 'done' : 'wrong-dot');
+    } else if (i === currentQ) {
+      d.classList.add('current');
+    }
+    container.appendChild(d);
+  }
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('q-num').textContent = currentQ + 1;
+  document.getElementById('q-cat').textContent = q.cat;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('phase-badge').textContent = currentQ < 2 ? 'Fase 1' : currentQ < 4 ? 'Fase 2' : 'Fase 3';
+
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    grid.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback-box');
+  fb.className = 'feedback-box';
+  fb.textContent = '';
+  document.getElementById('next-btn').style.display = 'none';
+  renderDots();
+}
+
+function selectAnswer(idx) {
+  const q = questions[currentQ];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const isCorrect = idx === q.correct;
+  results.push(isCorrect);
+
+  if (isCorrect) { score += 20; }
+
+  btns[q.correct].classList.add('correct');
+  if (!isCorrect) btns[idx].classList.add('wrong');
+
+  document.getElementById('score-display').textContent = score;
+
+  const fb = document.getElementById('feedback-box');
+  fb.className = 'feedback-box show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+  fb.textContent = (isCorrect ? '✅ Correto! ' : '❌ Ops! ') + q.feedback;
+
+  document.getElementById('next-btn').style.display = 'inline-block';
+  renderDots();
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) {
+    showMatchGame();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showMatchGame() {
+  document.getElementById('match-score-display').textContent = score;
+  selectedMatchLeft = null;
+  matchScores = 0;
+  matchDone = 0;
+  matchAttempts = {};
+
+  const leftCol = document.getElementById('match-left');
+  const rightCol = document.getElementById('match-right');
+  leftCol.innerHTML = '';
+  rightCol.innerHTML = '';
+
+  const shuffledRight = [...matchPairs].sort(() => Math.random() - 0.5);
+
+  matchPairs.forEach((pair, i) => {
+    const lItem = document.createElement('div');
+    lItem.className = 'match-item';
+    lItem.textContent = pair.practice;
+    lItem.dataset.idx = i;
+    lItem.onclick = () => selectLeft(i, lItem);
+    leftCol.appendChild(lItem);
+  });
+
+  shuffledRight.forEach((pair) => {
+    const rItem = document.createElement('div');
+    rItem.className = 'match-item';
+    rItem.textContent = pair.benefit;
+    rItem.dataset.benefit = pair.benefit;
+    rItem.onclick = () => selectRight(rItem);
+    rightCol.appendChild(rItem);
+  });
+
+  document.getElementById('match-feedback').textContent = '';
+  document.getElementById('match-next-btn').style.display = 'none';
+  showScreen('screen-match');
+}
+
+let selectedLeftIdx = null;
+let selectedLeftEl = null;
+
+function selectLeft(idx, el) {
+  if (el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-left .match-item').forEach(e => {
+    if (!e.classList.contains('matched')) e.classList.remove('selected');
+  });
+  selectedLeftIdx = idx;
+  selectedLeftEl = el;
+  el.classList.add('selected');
+}
+
+function selectRight(el) {
+  if (selectedLeftIdx === null) {
+    el.classList.add('selected');
+    setTimeout(() => el.classList.remove('selected'), 400);
+    return;
+  }
+  if (el.classList.contains('matched')) return;
+
+  const correctBenefit = matchPairs[selectedLeftIdx].benefit;
+  const chosen = el.dataset.benefit;
+
+  if (chosen === correctBenefit) {
+    el.classList.add('matched');
+    selectedLeftEl.classList.remove('selected');
+    selectedLeftEl.classList.add('matched');
+    matchScores += 10;
+    matchDone++;
+    score += 10;
+    document.getElementById('match-score-display').textContent = score;
+    if (matchDone === matchPairs.length) {
+      document.getElementById('match-feedback').textContent = '🎉 Todas associações corretas! +' + matchScores + ' pontos bônus!';
+      document.getElementById('match-next-btn').style.display = 'inline-block';
+    }
+  } else {
+    el.classList.add('wrong-match');
+    setTimeout(() => el.classList.remove('wrong-match'), 700);
+    selectedLeftEl.classList.remove('selected');
+    matchDone++;
+    if (matchDone === matchPairs.length) {
+      document.getElementById('match-next-btn').style.display = 'inline-block';
+    }
+  }
+
+  selectedLeftIdx = null;
+  selectedLeftEl = null;
+}
+
+function showResult() {
+  const pct = Math.round((score / (questions.length * 20 + matchPairs.length * 10)) * 100);
+  let icon, title, desc, tip;
+
+  if (pct >= 85) {
+    icon = '🏆'; title = 'Agente da Sustentabilidade!';
+    desc = 'Você demonstrou excelente conhecimento sobre a ODS 2! Está pronto para ser um agente de mudança no combate à fome e na promoção da agricultura sustentável.';
+    tip = '🌱 Dica: Compartilhe o que aprendeu! Cada pessoa consciente pode influenciar sua comunidade. Apoie produtores locais e reduza o desperdício de alimentos.';
+  } else if (pct >= 55) {
+    icon = '🌿'; title = 'Em formação!';
+    desc = 'Bom resultado! Você já conhece bastante sobre segurança alimentar e sustentabilidade. Continue aprendendo para aprofundar seu impacto.';
+    tip = '🥦 Dica: Saiba mais sobre a Agenda 2030 da ONU e como a ODS 2 se conecta com saúde, clima e pobreza. Pequenas ações no dia a dia fazem a diferença!';
+  } else {
+    icon = '🌱'; title = 'Aprendiz da Sustentabilidade!';
+    desc = 'Todo começo é válido! A ODS 2 é um tema amplo e importante. Continue explorando para entender como a agricultura sustentável pode transformar o mundo.';
+    tip = '📚 Dica: Pesquise sobre sistemas alimentares locais, desperdício de alimentos e agroecologia. O conhecimento é o primeiro passo para a mudança!';
+  }
+
+  document.getElementById('result-icon').textContent = icon;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-score-val').textContent = score + ' pts';
+  document.getElementById('result-desc').textContent = desc;
+  document.getElementById('result-tip').textContent = tip;
+  showScreen('screen-result');
+}
+
+function restartGame() {
+  showScreen('screen-start');
+}
+</script>
